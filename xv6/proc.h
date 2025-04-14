@@ -24,12 +24,12 @@ extern int ncpu;
 // The layout of the context matches the layout of the stack in swtch.S
 // at the "Switch stacks" comment. Switch doesn't save eip explicitly,
 // but it is on the stack and allocproc() manipulates it.
-struct context {
-  uint edi; // 부호 없는 정수형 데이터 타입
-  uint esi;
-  uint ebx;
-  uint ebp;
-  uint eip;
+struct context { // 부호 없는 정수형 데이터 타입
+  uint edi; // 일반 목적 레지스터
+  uint esi; // 일반 목적 레지스터
+  uint ebx; // 일반 목적 레지스터
+  uint ebp; // 베이스 포인터 레지스터
+  uint eip; // 다음 실행할 명령어의 주소
 };
 
 enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };

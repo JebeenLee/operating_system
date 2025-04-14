@@ -9,7 +9,19 @@
 thread_switch:
 	/* YOUR CODE HERE */
 
-	ret    /* return to ra */
+	pushal  /* return to ra */
+
+	movl current_thread, %eax
+	movl %esp, (%eax)
+	movl next_thread, %eax
+	movl (%eax), %esp
+
+	movl %eax, current_thread
+	popal
+
+	movl $0, next_thread
+
+	ret 
 /*
 스택 스위칭? -> thread_switch 
 

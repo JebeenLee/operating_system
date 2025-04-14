@@ -57,20 +57,28 @@ trap(struct trapframe *tf) ////////////////////////////////////////////////
     return;
   }
 
-  switch(tf->trapno){
-  case T_IRQ0 + IRQ_TIMER:
+  switch(tf->trapno){  // struct trapframe의 멤버 변수 trapno
+  case T_IRQ0 + IRQ_TIMER: // 요기서 타임 인터럽트가 발생
     if(cpuid() == 0){
       acquire(&tickslock);
       ticks++;
-      wakeup(&ticks);
-      release(&tickslock);
+      wakeup(&ticks); // ticks를 기다리는 프로세스를 깨움
+      release(&tickslock); // 동시접근 제어
     }
     lapiceoi();
     if (myproc() && myproc()->scheduler != 0 && ticks%10 == 0){
       cprintf("\nchange!! invoke user start addr of scheduler function");
       myproc()->tf->eip = myproc()->scheduler; // 스케줄러 주소를 넣어줌
     }
-
+    /*
+   if (myproc() && myproc()->state == RUNNING) {
+    if (current_thread) {
+        // 현재 스레드 상태를 RUNNABLE로 변경
+        current_thread->state = RUNNABLE;
+    }
+    // 스케줄러 호출
+    thread_schedule();
+}*/
     break;
   case T_IRQ0 + IRQ_IDE:
     ideintr();
@@ -127,7 +135,7 @@ trap(struct trapframe *tf) ////////////////////////////////////////////////
   // If interrupts were on while locks held, would need to check nlock.
   if(myproc() && myproc()->state == RUNNING && // 타이머 인터렉트가 발생할 때 마다 스케듈러 동작 -> 요때 스케듈이 되도록 추가
      tf->trapno == T_IRQ0+IRQ_TIMER)
-    yield();
+    yield(); // 컨텍스트 스위칭
 
   // Check if the process has been killed since we yielded
   if(myproc() && myproc()->killed && (tf->cs&3) == DPL_USER)

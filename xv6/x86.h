@@ -171,7 +171,7 @@ struct trapframe {
 
   // below here defined by x86 hardware
   uint err;
-  uint eip;
+  uint eip; // 명령어 포인터 (트랩 발생 시 실행 중이던 명령어의 주소)
   ushort cs;
   ushort padding5;
   uint eflags;
