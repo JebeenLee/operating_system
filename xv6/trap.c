@@ -66,19 +66,11 @@ trap(struct trapframe *tf) ////////////////////////////////////////////////
       release(&tickslock); // 동시접근 제어
     }
     lapiceoi();
-    if (myproc() && myproc()->scheduler != 0 && ticks%10 == 0){
-      cprintf("\nchange!! invoke user start addr of scheduler function");
+    if (myproc() && myproc()->scheduler != 0 && ticks%10 == 0){ //
+      // cprintf("\nchange!! invoke user start addr of scheduler function");
       myproc()->tf->eip = myproc()->scheduler; // 스케줄러 주소를 넣어줌
     }
-    /*
-   if (myproc() && myproc()->state == RUNNING) {
-    if (current_thread) {
-        // 현재 스레드 상태를 RUNNABLE로 변경
-        current_thread->state = RUNNABLE;
-    }
-    // 스케줄러 호출
-    thread_schedule();
-}*/
+    
     break;
   case T_IRQ0 + IRQ_IDE:
     ideintr();

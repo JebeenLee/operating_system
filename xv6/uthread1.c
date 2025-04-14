@@ -27,8 +27,22 @@ static thread_t all_thread[MAX_THREAD]; // 모든 Thread
 thread_p  current_thread; // 현재 실행중인 쓰레드                          넥스트 쓰레드를 스택 포인터에 로드
 thread_p  next_thread; // 다음에 실행할 쓰레드
 extern void thread_switch(void); // 다음에 실행 가능한 쓰레드를 찾아서 필요에 따라 전환
-                                 // 실행 가능한 쓰레드가 없으면 오류 출력
+static void thread_schedule(void); // 실행 가능한 쓰레드를 찾아 필요에 따라 전환
+// 실행 가능한 쓰레드가 없으면 오류 출력
+void 
+thread_init(void) // 쓰레딩 시스템 초기화, 메인 쓰레드를 현재 쓰레드로 설정하고 RUNNING 상태로 표시
+{
+  // uthread_init((int)thread_schedule); // system call
 
+  // main() is thread 0, which will make the first invocation to
+  // thread_schedule().  it needs a stack so that the first thread_switch() can
+  // save thread 0's state.  thread_schedule() won't run the main thread ever
+  // again, because its state is set to RUNNING, and thread_schedule() selects
+  // a RUNNABLE thread.
+  current_thread = &all_thread[0];
+  current_thread->state = RUNNING;
+  uthread_init((int)thread_schedule); // system call
+}
 static void  // 얘는 좀 바꿔도 됨. 다른 건 안됨
 thread_schedule(void) // 실행 가능한 스레드를 찾아 필요에 따라 전환
                       // 실행 가능한 쓰레드가 없으면 오류 출력
@@ -64,20 +78,7 @@ thread_schedule(void) // 실행 가능한 스레드를 찾아 필요에 따라 �
     next_thread = 0;
 }
 
-void 
-thread_init(void) // 쓰레딩 시스템 초기화, 메인 쓰레드를 현재 쓰레드로 설정하고 RUNNING 상태로 표시
-{
-  uthread_init((int)thread_schedule); // system call
 
-  // main() is thread 0, which will make the first invocation to
-  // thread_schedule().  it needs a stack so that the first thread_switch() can
-  // save thread 0's state.  thread_schedule() won't run the main thread ever
-  // again, because its state is set to RUNNING, and thread_schedule() selects
-  // a RUNNABLE thread.
-  current_thread = &all_thread[0];
-  current_thread->state = RUNNING;
-  uthread_init((int)thread_schedule); // system call
-}
 
 // 요놈은 분석을 좀 해야함
 void 
